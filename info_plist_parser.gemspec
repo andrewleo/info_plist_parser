@@ -19,13 +19,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.required_ruby_version = '~> 2.0'
 
-  spec.add_runtime_dependency 'CFPropertyList', '2.2.8'
-  spec.add_runtime_dependency 'zip', '2.0.2'
-  spec.add_runtime_dependency 'rubyzip', '1.1.6'
-  spec.add_runtime_dependency 'pngdefry', '0.1.2'
+  spec.add_runtime_dependency 'CFPropertyList', '~> 2.3.5'
+  spec.add_runtime_dependency 'rubyzip', '>= 1.0.0'
+  spec.add_runtime_dependency 'pngdefry', '~> 0.1.2'
 
-  spec.add_development_dependency "bundler", "~> 1.6"
-  spec.add_development_dependency "rake"
+  spec.add_development_dependency 'bundler', '~> 1.6'
+  spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rspec'
-
 end

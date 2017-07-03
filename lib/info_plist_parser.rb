@@ -1,5 +1,4 @@
 require "info_plist_parser/version"
-require 'zip/zipfilesystem'
 require 'zip'
 require 'cfpropertylist'
 require 'pngdefry'
@@ -24,8 +23,8 @@ module InfoPlistParser
     # 获取app的版本
     def version
       cfbsv, cfbv, version = plist["CFBundleShortVersionString"], plist["CFBundleVersion"], ""
-      version = "v" + cfbsv + " " if cfbsv!=""
-      version = version + "build " + cfbv if cfbv!= ""
+      version = "v" + cfbsv + " " if cfbsv != ""
+      version = version + "build " + cfbv if cfbv != ""
       version
     end
 
@@ -56,7 +55,11 @@ module InfoPlistParser
     # 获取ipa文件的文件结构
     def ipa_file_list
       file_list = []
-      Zip::ZipFile.foreach(self.file_path) { |f| file_list << File.basename(f.name) }
+      Zip::File.open(self.file_path) do |zip_file|
+        zip_file.each do |entry|
+          file_list << File.basename(entry.name)
+        end
+      end
       file_list
     end
 
@@ -128,10 +131,12 @@ module InfoPlistParser
       file = ""
       if icon_file_name
         regex = /^[^\/]+\/[^\/]+.app\/#{icon_file_name}$/
-        Zip::ZipFile.foreach(self.file_path) do |f|
-          if f.name.match(regex)
-            file = f.name
-            break
+        Zip::File.open(self.file_path) do |zip_file|
+          zip_file.each do |entry|
+            if entry.name.match(regex)
+              file = entry.name
+              break
+            end
           end
         end
         file || nil
@@ -142,7 +147,7 @@ module InfoPlistParser
     end
 
     # 读取app图标至本地文件file_path中
-    def read_icon_file(file_path,defry = false)
+    def read_icon_file(file_path, defry = false)
       icon_file = icon_file_name
       unless icon_file.nil?
         regex = /^[^\/]+\/[^\/]+.app\/#{icon_file}$/
@@ -155,7 +160,11 @@ module InfoPlistParser
     # 读取ipa中的文件
     def read_file(regex)
       file = nil
-      Zip::ZipFile.foreach(self.file_path) { |f| file = f if f.name.match(regex) }
+      Zip::File.open(self.file_path) do |zip_file|
+        zip_file.each do |entry|
+          file = entry if entry.name.match(regex)
+        end
+      end
       unless file.nil?
         file.get_input_stream.read
       else
